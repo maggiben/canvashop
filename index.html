@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta name="description" content="canvas editor" />
+    <link rel="stylesheet" href="./css/font-awesome.css">
+    <script src="./js/caman.full.js"></script>
+    <style>
+    .editor {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      height: 450px;
+      border: 1px solid #000;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 1);
+      border-radius: 6px;
+      overflow: hidden;
+      background-image: url('./img/blueprint_preview.jpg');
+    }
+    .editor canvas {
+        position: relative;
+        top: 50%;
+        left: 50%;
+        /*width: 100%;*/
+        /*border: 1px dotted #fff;*/
+        opacity: 1;
+    }
+    .editor .sidebar {
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        width: 32px;
+        height: 380px;
+        border: 1px solid #000;
+        border-top-width: 12px;
+        border-radius: 2px;
+        background-image: url('./img/trans.png');
+    }
+    .editor .sidebar button {
+        display: block;
+        margin-top: 2px;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid #000;
+        border-radius: 4px;
+        line-height: 20px;
+        height: 24px;
+    }
+    .editor .sidebar button:hover {
+        margin-bottom: auto;
+        line-height: 20px;
+        border: 1px solid #fff;
+        background-color: #000;
+        color: #fff;
+        border-radius: 4px;
+        height: 24px;
+    }
+    .editor .sidebar button:active {
+        margin-bottom: auto;
+        line-height: 20px;
+        border: 1px solid #000;
+        background-color: #fff;
+        color: #000;
+        border-radius: 4px;
+        height: 24px;
+    }
+    .horizontal_divider {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        width: 90%;
+        border-bottom: 1px solid #666;
+        border-top: 1px solid #333;
+    }
+    .editor .window {
+        position: absolute;
+        right: 4px;
+        top: 4px;
+        width: 22px;
+        height: 22px;
+        border: 1px solid #000;
+        border-radius: 2px;
+        background-color: #000;
+        background-image: url('./img/trans.png');
+    }
+    .editor .tools {
+        position: absolute;
+        text-align: center;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+        height: 34px;
+        opacity: 1;
+        border-top: 1px dotted black;
+        overflow: hidden;
+        display: inline-block;
+        background-image: url('./img/trans.png');
+    }
+    .editor .tools .controls {
+        position: absolute;
+        top: 50%;
+        margin-top: -14px;
+        margin-left: 4px;
+    }
+    .editor .tools .controls input {
+        width: 42px;
+        margin-bottom: auto;
+        line-height: 20px;
+        border: 1px solid #000;
+        border-radius: 4px;
+        text-align: center;
+    }
+    .editor .tools .controls button {
+        margin-bottom: auto;
+        line-height: 20px;
+        border: 1px solid #000;
+        border-radius: 4px;
+        height: 24px;
+    }
+    .editor .tools .controls button:hover {
+        margin-bottom: auto;
+        line-height: 20px;
+        border: 1px solid #fff;
+        background-color: #000;
+        color: #fff;
+        border-radius: 4px;
+        height: 24px;
+    }
+    .editor .tools .controls button:active {
+        margin-bottom: auto;
+        line-height: 20px;
+        border: 1px solid #000;
+        background-color: #fff;
+        color: #000;
+        border-radius: 4px;
+        height: 24px;
+    }
+    </style>
+    <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
+    <script type="text/javascript">
+
+    var maxWidth = 500;
+    var maxHeight = 500;
+    var TO_RADIANS = Math.PI/180;
+
+    $(document).ready(function () {
+        $('#rotate').click(function(){
+
+        });
+        console.log("INIT")
+        //initCanvas();
+        initControls();
+    });
+
+    CanvasRenderingContext2D.prototype.clear = CanvasRenderingContext2D.prototype.clear || function (preserveTransform) {
+        if (preserveTransform) {
+            // Store the current transformation matrix
+            this.save();
+            // Use the identity matrix while clearing the canvas
+            this.setTransform(1, 0, 0, 1, 0, 0);
+        }
+
+        this.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (preserveTransform) {
+            // Restore the transform
+            this.restore();
+        }
+    };
+    function initControls() {
+
+        var myImage = null;
+        var angle = 0;
+        var scale = 1;
+        var input = createInput($("#file div"));
+        $(input).on('change', function(event) {
+            $.when(loadFile(event.target.files[0]))
+            .then(function(data){
+                $.when(loadImage(data))
+                .then(function(image){
+                    console.log("image is ready")
+                    console.log(image)
+                    myImage = image.srcElement;
+                    initCanvas(image.srcElement)
+                })
+            })
+        });
+        $(".edit").on("click", function(){
+            var action = $(this).attr("data-transform");
+            switch(action) {
+                case "rotate":
+                    console.log("rotate image");
+                    //drawRotatedImage(context, imageObj, 64, 64, 45);
+                    var canvas = document.getElementById('image')
+                    var context = canvas.getContext('2d');
+                    context.clear(true);
+                    angle += 45;
+                    drawRotatedImage(context, myImage, canvas.width/2, canvas.height/2, angle)
+                    break;
+                case "scale":
+                    console.log("scale image");
+                    var factor = parseInt($(this).attr("data-factor"), 10);
+                    console.log(factor)
+                    var canvas = document.getElementById('image')
+                    var context = canvas.getContext('2d');
+                    context.clear(true);
+                    scale += (factor * 0.1);
+                    drawScaledImage(context, myImage, canvas.width/2, canvas.height/2,  scale)
+                    break;
+            }
+        });
+
+    }
+    function getContext() {
+        return document.getElementById('image').getContext('2d');
+    }
+    function initCanvas(image) {
+        var imgWidth  = image.width;
+        var imgHeight = image.height;
+
+        // Calculate the new image dimensions, so they fit
+        // inside the maxWidth x maxHeight bounding box
+
+        if (imgWidth >= maxWidth || imgHeight >= maxHeight) {
+
+            // The image is too large,
+            // resize it to fit a 500x500 square!
+
+            if (imgWidth > imgHeight) {
+
+                // Wide
+                ratio = imgWidth / maxWidth;
+                newWidth = maxWidth;
+                newHeight = imgHeight / ratio;
+
+            } else {
+
+                // Tall or square
+                ratio = imgHeight / maxHeight;
+                newHeight = maxHeight;
+                newWidth = imgWidth / ratio;
+
+            }
+
+        } else {
+            newHeight = imgHeight;
+            newWidth = imgWidth;
+        }
+
+        // Create the original canvas.
+
+        var canvas = document.getElementById('image');
+        var context = canvas.getContext('2d');
+        trackTransforms(context);
+
+        // Draw the dropped image to the canvas
+        // with the new dimensions
+        //context.drawImage(image, 0, 0, newWidth, newHeight);
+        //resizeCanvasContainer(canvas, imgWidth, imgHeight, 45)
+        var size = newSize(imgWidth, imgHeight, 0);
+        canvas.width = size.width;
+        canvas.height = size.height;
+
+        $(canvas).attr({
+            width: size.width,
+            height: size.height
+        }).css({
+            marginTop: -size.height/2,
+            marginLeft: -size.width/2
+        });
+
+        // Draw the dropped image to the canvas
+        // with the new dimensions
+        context.drawImage(image, 0, 0, newWidth, newHeight);
+
+        // We don't need this any more
+        image.remove();
+
+        return;
+    }
+    function reDraw(canvas) {
+        var context = canvas.getContext('2d');
+        trackTransforms(context);
+        // Clear the entire canvas
+        var p1 = context.transformedPoint(0,0);
+        var p2 = context.transformedPoint(canvas.width,canvas.height);
+        context.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+    }
+    function resizeCanvasContainer(canvas, width, height, angle){
+        var newWidth,newHeight;
+        var rads=angle*Math.PI/180;
+        var cos = Math.cos(rads);
+        var sin = Math.sin(rads);
+
+        if (sin < 0) { sin = -sin; }
+        if (cos < 0) { cos = -cos; }
+
+        newWidth = height * sin + width * cos;
+        newHeight = height * cos + width * sin;
+
+        console.log("width: %s, height: %s", newWidth, newHeight);
+        /*
+        canvas.width = newWidth + 'px';
+        canvas.height = newHeight + 'px';
+        */
+        return {
+            width: newWidth,
+            height: newHeight
+        };
+    }
+    function newSize(width, height, angle){
+        var rads = angle*Math.PI/180;
+        var cos = Math.cos(rads);
+        var sin = Math.sin(rads);
+        var size = {
+            width: 0,
+            height: 0
+        };
+        if (sin < 0) { sin = -sin; }
+        if (cos < 0) { cos = -cos; }
+        size.width = height * sin + width * cos;
+        size.height = height * cos + width * sin;
+
+        console.log(size);
+        return size;
+    }
+    function loadImage(event) {
+        var img = new Image();
+        var deferred = new jQuery.Deferred();
+        img.src = event.target.result;
+        img.alt = file.name;
+        img.title = escape(file.name);
+        img.onload = function(event) {
+            deferred.resolve(event);
+        }
+        return deferred.promise();
+    }
+    function loadFile(file) {
+        var reader = new FileReader();
+        var deferred = new jQuery.Deferred();
+        reader.onload = function(event) {
+            deferred.resolve(event);
+        }
+        reader.readAsDataURL(file);
+        return deferred.promise();
+    }
+    function createInput(container){
+        var input = document.createElement("input");
+
+        input.setAttribute("multiple", "multiple");
+        input.setAttribute("accept", true);
+        input.setAttribute("type", "file");
+        //input.setAttribute("name", that.options.name);
+
+        $(input).css({
+            position: 'absolute',
+            // in Opera only 'browse' button
+            // is clickable and it is located at
+            // the right side of the input
+            'top': '0px',
+            'width': '22px',
+            'margin-left': '-14px',
+            'padding': '0px',
+            'cursor': 'pointer',
+            'opacity': 0
+        });
+
+        //$(that.options.uploaderSelector)[0].appendChild(input);
+        $(container).append(input);
+
+        // IE and Opera, unfortunately have 2 tab stops on file input
+        // which is unacceptable in our case, disable keyboard access
+        if (window.attachEvent){
+            // it is IE or Opera
+            input.setAttribute('tabIndex', "-1");
+        }
+        return input;
+    }
+    function drawRotatedImage(context, image, x, y, angle) {
+      // save the current co-ordinate system
+      // before we screw with it
+      context.save();
+      // move to the middle of where we want to draw our image
+      context.translate(x, y);
+      // rotate around that point, converting our
+      // angle from degrees to radians
+      context.rotate(angle * TO_RADIANS);
+      // draw it up and to the left by half the width
+      // and height of the image
+      context.drawImage(image, -(image.width/2), -(image.height/2));
+      // and restore the co-ords to how they were when we began
+      context.restore();
+    }
+    function drawScaledImage(context, image, x, y, factor) {
+      // save the current co-ordinate system
+      // before we screw with it
+      context.save();
+
+      // move to the middle of where we want to draw our image
+      context.translate(x, y);
+
+      // rotate around that point, converting our
+      // angle from degrees to radians
+      context.scale(factor, factor);
+
+      // draw it up and to the left by half the width
+      // and height of the image
+      context.drawImage(image, -(image.width/2), -(image.height/2));
+
+      // and restore the co-ords to how they were when we began
+      context.restore();
+    }
+    // Adds ctx.getTransform() - returns an SVGMatrix
+    // Adds ctx.transformedPoint(x,y) - returns an SVGPoint
+    function trackTransforms(ctx){
+        var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
+        var xform = svg.createSVGMatrix();
+        ctx.getTransform = function(){ return xform; };
+
+        var savedTransforms = [];
+        var save = ctx.save;
+        ctx.save = function(){
+            savedTransforms.push(xform.translate(0,0));
+            return save.call(ctx);
+        };
+        var restore = ctx.restore;
+        ctx.restore = function(){
+            xform = savedTransforms.pop();
+            return restore.call(ctx);
+        };
+
+        var scale = ctx.scale;
+        ctx.scale = function(sx,sy){
+            xform = xform.scaleNonUniform(sx,sy);
+            return scale.call(ctx,sx,sy);
+        };
+        var rotate = ctx.rotate;
+        ctx.rotate = function(radians){
+            xform = xform.rotate(radians*180/Math.PI);
+            return rotate.call(ctx,radians);
+        };
+        var translate = ctx.translate;
+        ctx.translate = function(dx,dy){
+            xform = xform.translate(dx,dy);
+            return translate.call(ctx,dx,dy);
+        };
+        var transform = ctx.transform;
+        ctx.transform = function(a,b,c,d,e,f){
+            var m2 = svg.createSVGMatrix();
+            m2.a=a; m2.b=b; m2.c=c; m2.d=d; m2.e=e; m2.f=f;
+            xform = xform.multiply(m2);
+            return transform.call(ctx,a,b,c,d,e,f);
+        };
+        var setTransform = ctx.setTransform;
+        ctx.setTransform = function(a,b,c,d,e,f){
+            xform.a = a;
+            xform.b = b;
+            xform.c = c;
+            xform.d = d;
+            xform.e = e;
+            xform.f = f;
+            return setTransform.call(ctx,a,b,c,d,e,f);
+        };
+        var pt  = svg.createSVGPoint();
+        ctx.transformedPoint = function(x,y){
+            pt.x=x; pt.y=y;
+            return pt.matrixTransform(xform.inverse());
+        }
+    }
+    </script>
+    <meta charset=utf-8 />
+    <title>Canvas Edit</title>
+    </head>
+    <body>
+        <div class="editor">
+            <div class="window"></div>
+            <div class="sidebar">
+                <div class="controls">
+                    <button><i class="icon-adjust icon-white"></i></button>
+                    <button class="edit" data-transform="scale" data-factor="1"><i class="icon-zoom-in icon-white"></i></button>
+                    <button class="edit" data-transform="scale" data-factor="-1"><i class="icon-zoom-out icon-white"></i></button>
+                    <div class="horizontal_divider"></div>
+                    <button>Y</button>
+                    <button>X</button>
+                    <button>Z</button>
+                    <div class="horizontal_divider"></div>
+                    <button>1</button>
+                    <button>2</button>
+                    <button>3</button>
+                </div>
+            </div>
+            <canvas id="image"></canvas>
+            <div class="tools">
+                <div class="controls">
+                    <input type="text" value="100%" />
+                    <button id="edit" data-transform="rotate" class="btn"><i class="icon-save icon-white"></i></button>
+                    <button id="file" data-action="open" class="btn"><i class="icon-folder-open icon-white"></i><div></div></button>
+                    <button id="1edit" data-transform="rotate" class="btn"><i class="icon-cogs icon-white"></i></button>
+                    <button id="2edit" data-transform="rotate" class="btn"><i class="icon-save icon-white"></i></button>
+                    <button id="3edit" data-transform="rotate" class="btn"><i class="icon-undo icon-white"></i></button>
+                    <button id="4edit" data-transform="rotate" class="edit btn"><i class="icon-repeat icon-white"></i></button>
+                    <button id="5edit" data-transform="scale" class="btn">scale</button>
+                    <!-- input type="range" id="angle-control" value="0" min="-90" max="90" -->
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
