@@ -1,149 +1,184 @@
 <!DOCTYPE html>
 <html>
     <head>
-    <meta name="description" content="canvas editor" />
-    <link rel="stylesheet" href="./css/font-awesome.css">
-    <script src="./js/caman.full.js"></script>
-    <style>
-    .editor {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      height: 450px;
-      border: 1px solid #000;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 1);
-      border-radius: 6px;
-      overflow: hidden;
-      background-image: url('./img/blueprint_preview.jpg');
-    }
-    .editor canvas {
-        position: relative;
-        top: 50%;
-        left: 50%;
-        /*width: 100%;*/
-        /*border: 1px dotted #fff;*/
-        opacity: 1;
-    }
-    .editor .sidebar {
-        position: absolute;
-        left: 4px;
-        top: 4px;
-        width: 32px;
-        height: 380px;
-        border: 1px solid #000;
-        border-top-width: 12px;
-        border-radius: 2px;
-        background-image: url('./img/trans.png');
-    }
-    .editor .sidebar button {
-        display: block;
-        margin-top: 2px;
-        margin-left: auto;
-        margin-right: auto;
-        border: 1px solid #000;
-        border-radius: 4px;
-        line-height: 20px;
-        height: 24px;
-    }
-    .editor .sidebar button:hover {
-        margin-bottom: auto;
-        line-height: 20px;
-        border: 1px solid #fff;
-        background-color: #000;
-        color: #fff;
-        border-radius: 4px;
-        height: 24px;
-    }
-    .editor .sidebar button:active {
-        margin-bottom: auto;
-        line-height: 20px;
-        border: 1px solid #000;
-        background-color: #fff;
-        color: #000;
-        border-radius: 4px;
-        height: 24px;
-    }
-    .horizontal_divider {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 4px;
-        margin-bottom: 4px;
-        width: 90%;
-        border-bottom: 1px solid #666;
-        border-top: 1px solid #333;
-    }
-    .editor .window {
-        position: absolute;
-        right: 4px;
-        top: 4px;
-        width: 22px;
-        height: 22px;
-        border: 1px solid #000;
-        border-radius: 2px;
-        background-color: #000;
-        background-image: url('./img/trans.png');
-    }
-    .editor .tools {
-        position: absolute;
-        text-align: center;
-        bottom: 0px;
-        left: 0px;
-        width: 100%;
-        height: 34px;
-        opacity: 1;
-        border-top: 1px dotted black;
-        overflow: hidden;
-        display: inline-block;
-        background-image: url('./img/trans.png');
-    }
-    .editor .tools .controls {
-        position: absolute;
-        top: 50%;
-        margin-top: -14px;
-        margin-left: 4px;
-    }
-    .editor .tools .controls input {
-        width: 42px;
-        margin-bottom: auto;
-        line-height: 20px;
-        border: 1px solid #000;
-        border-radius: 4px;
-        text-align: center;
-    }
-    .editor .tools .controls button {
-        margin-bottom: auto;
-        line-height: 20px;
-        border: 1px solid #000;
-        border-radius: 4px;
-        height: 24px;
-    }
-    .editor .tools .controls button:hover {
-        margin-bottom: auto;
-        line-height: 20px;
-        border: 1px solid #fff;
-        background-color: #000;
-        color: #fff;
-        border-radius: 4px;
-        height: 24px;
-    }
-    .editor .tools .controls button:active {
-        margin-bottom: auto;
-        line-height: 20px;
-        border: 1px solid #000;
-        background-color: #fff;
-        color: #000;
-        border-radius: 4px;
-        height: 24px;
-    }
-    </style>
-    <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
-
-    <meta charset=utf-8 />
-    <title>Canvas Edit</title>
+        <title>CANVASHOP</title>
+        <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <meta charset="utf-8">
+        <meta property="og:title"  name="title" content="laboratory">
+        <meta property="og:url" content="http://html5.laboratory.com/">
+        <meta property="og:image" content="http://laboratory.com/workspace/widget/100.png">
+        <meta property="og:site_name" content="CANVASHOP">
+        <meta property="og:locale" content="en_US">
+        <meta property="og:type" content="website">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link type="text/css" rel="stylesheet" media="all" href="./css/font-awesome.css">    
+        <style>
+        .editor {
+          position: relative;
+          display: inline-block;
+          width: 100%;
+          height: 450px;
+          border: 1px solid #000;
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 1);
+          border-radius: 6px;
+          overflow: hidden;
+          background-image: url('./img/blueprint_preview.jpg');
+        }
+        .editor canvas {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            /*width: 100%;*/
+            /*border: 1px dotted #fff;*/
+            opacity: 1;
+        }
+        .editor .sidebar {
+            position: absolute;
+            left: 4px;
+            top: 4px;
+            width: 32px;
+            height: 380px;
+            border: 1px solid #000;
+            border-top-width: 12px;
+            border-radius: 2px;
+            background-image: url('./img/trans.png');
+        }
+        .editor .sidebar button {
+            display: block;
+            margin-top: 2px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid #000;
+            border-radius: 4px;
+            line-height: 20px;
+            height: 24px;
+        }
+        .editor .sidebar button:hover {
+            margin-bottom: auto;
+            line-height: 20px;
+            border: 1px solid #fff;
+            background-color: #000;
+            color: #fff;
+            border-radius: 4px;
+            height: 24px;
+        }
+        .editor .sidebar button:active {
+            margin-bottom: auto;
+            line-height: 20px;
+            border: 1px solid #000;
+            background-color: #fff;
+            color: #000;
+            border-radius: 4px;
+            height: 24px;
+        }
+        .horizontal_divider {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 4px;
+            margin-bottom: 4px;
+            width: 90%;
+            border-bottom: 1px solid #666;
+            border-top: 1px solid #333;
+        }
+        .editor .window {
+            position: absolute;
+            right: 4px;
+            top: 4px;
+            width: 22px;
+            height: 22px;
+            border: 1px solid #000;
+            border-radius: 2px;
+            background-color: #000;
+            background-image: url('./img/trans.png');
+        }
+        .editor .tools {
+            position: absolute;
+            text-align: center;
+            bottom: 0px;
+            left: 0px;
+            width: 100%;
+            height: 34px;
+            opacity: 1;
+            border-top: 1px dotted black;
+            overflow: hidden;
+            display: inline-block;
+            background-image: url('./img/trans.png');
+        }
+        .editor .tools .controls {
+            position: absolute;
+            top: 50%;
+            margin-top: -14px;
+            margin-left: 4px;
+        }
+        .editor .tools .controls input {
+            width: 42px;
+            margin-bottom: auto;
+            line-height: 20px;
+            border: 1px solid #000;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .editor .tools .controls button {
+            margin-bottom: auto;
+            line-height: 20px;
+            border: 1px solid #000;
+            border-radius: 4px;
+            height: 24px;
+        }
+        .editor .tools .controls button:hover {
+            margin-bottom: auto;
+            line-height: 20px;
+            border: 1px solid #fff;
+            background-color: #000;
+            color: #fff;
+            border-radius: 4px;
+            height: 24px;
+        }
+        .editor .tools .controls button:active {
+            margin-bottom: auto;
+            line-height: 20px;
+            border: 1px solid #000;
+            background-color: #fff;
+            color: #000;
+            border-radius: 4px;
+            height: 24px;
+        }
+        </style>
+        <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
+        <script src="./js/caman.full.js"></script>
+        <script src="./js/canvashop.js"></script>
+        <script>
+            $(document).ready(function () {
+                "use strict";
+                var canvas = document.getElementById('image')
+                window.canvashop = new window.CANVASHOP(canvas);
+                
+                init();
+                return;
+            });            
+            function init() {
+                var myImage = null;
+                var input = window.canvashop.createInput($("#file div"));
+                $(input).on('change', function(event) {
+                    $.when(window.canvashop.loadFile(event.target.files[0]))
+                    .then(function(data){
+                        $.when(window.canvashop.loadImage(data))
+                        .then(function(image){
+                            myImage = image.srcElement;
+                            window.canvashop.initCanvas(image.srcElement);
+                            window.canvashop.filter();
+                        });
+                    });
+                });
+            }
+        </script>
     </head>
     <body>
-        <div class="editor">
+        <div class="editor" id="photo">
             <div class="window"></div>
             <div class="sidebar">
                 <div class="controls">

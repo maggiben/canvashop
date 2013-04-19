@@ -21,14 +21,92 @@
             ///////////////////
             this.jQuery = jQuery;
             this.version = '1.0';
+            this.maxWidth = 500;
+            this.maxHeight = 500;
+            this.photo = $('#photo');
+            this.canvas = canvas;
             this.context = canvas.getContext('2d');
             this.transformations = {
                 angle: 0,
                 scale: 0                
-            }
+            };
+            this.filters = ['normal', 'vintage', 'lomo', 'clarity', 'sinCity', 'sunrise', 'crossProcess', 'orangePeel', 'love', 'grungy', 'jarques', 'pinhole', 'oldBoot', 'glowingSun', 'hazyDays', 'herMajesty', 'nostalgia', 'hemingway', 'concentrate'];
             this.TO_RADIANS = Math.PI/180;
             var that = this;
         }
+        CANVASHOP.prototype.initCanvas = function(image) {
+            var that = this;
+            var imgWidth  = image.width;
+            var imgHeight = image.height;
+            var newWidth = 0;
+            var newHeight = 0;
+            var ratio = null;
+            // Calculate the new image dimensions, so they fit
+            // inside the maxWidth x maxHeight bounding box
+            if (imgWidth >= that.maxWidth || imgHeight >= that.maxHeight) {
+                // The image is too large,
+                // resize it to fit a 500x500 square!
+                if (imgWidth > imgHeight) {
+                    // Wide
+                    ratio = imgWidth / that.maxWidth;
+                    newWidth = that.maxWidth;
+                    newHeight = imgHeight / ratio;
+                } else {
+                    // Tall or square
+                    ratio = imgHeight / that.maxHeight;
+                    newHeight = that.maxHeight;
+                    newWidth = imgWidth / ratio;
+                }
+            } else {
+                newHeight = imgHeight;
+                newWidth = imgWidth;
+            }
+            //trackTransforms(that.context);
+            // Draw the dropped image to the canvas
+            // with the new dimensions
+            var size = that.newSize(imgWidth, imgHeight, 0);
+            that.canvas.width = size.width;
+            that.canvas.height = size.height;
+            $(that.canvas).attr({
+                width: size.width,
+                height: size.height
+            }).css({
+                marginTop: -size.height/2,
+                marginLeft: -size.width/2
+            });
+            // Draw the dropped image to the canvas
+            // with the new dimensions
+            that.context.drawImage(image, 0, 0, newWidth, newHeight);
+            // We don't need this any more
+            image.remove();
+            return;
+        };
+        ///////////////////////////////////////////////////////////////////////
+        // Image filters                                                     //
+        ///////////////////////////////////////////////////////////////////////
+        CANVASHOP.prototype.filter = function() {
+            var that = this;
+            // Clone the canvas
+            var canvas = $(that.canvas).clone();
+            // Clone the image stored in the canvas as well
+            canvas[0].getContext('2d').drawImage(that.canvas, 0, 0);
+            // Add the clone to the page and trigger
+            // the Caman library on it
+            that.photo.find('canvas').remove().end().append(canvas);
+            var effect = 'nostalgia';
+            Caman(canvas[0], function () {
+                // If such an effect exists, use it:    
+                if( effect in this){
+                    this[effect]();
+                    this.render();
+                    // Show the download button
+                    //showDownload(clone[0]);
+                }
+                else{
+                    //hideDownload();
+                }
+            });            
+        };
         ///////////////////////////////////////////////////////////////////////
         // Image Transformations                                             //
         ///////////////////////////////////////////////////////////////////////
@@ -103,6 +181,34 @@
             }
             reader.readAsDataURL(file);
             return deferred.promise();
+        };
+        CANVASHOP.prototype.createInput = function(container){
+            var input = document.createElement("input");
+            input.setAttribute("multiple", "multiple");
+            input.setAttribute("accept", true);
+            input.setAttribute("type", "file");
+            //input.setAttribute("name", that.options.name);
+            $(input).css({
+                position: 'absolute',
+                // in Opera only 'browse' button
+                // is clickable and it is located at
+                // the right side of the input
+                'top': '0px',
+                'width': '22px',
+                'margin-left': '-14px',
+                'padding': '0px',
+                'cursor': 'pointer',
+                'opacity': 0
+            });
+            //$(that.options.uploaderSelector)[0].appendChild(input);
+            $(container).append(input);
+            // IE and Opera, unfortunately have 2 tab stops on file input
+            // which is unacceptable in our case, disable keyboard access
+            if (window.attachEvent){
+                // it is IE or Opera
+                input.setAttribute('tabIndex', "-1");
+            }
+            return input;
         };
         CANVASHOP.prototype.getVersion = function() {
             console.log(this.version);
