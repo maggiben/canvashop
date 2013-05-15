@@ -21,8 +21,8 @@
             ///////////////////
             this.jQuery = jQuery;
             this.version = '1.0';
-            this.maxWidth = 500;
-            this.maxHeight = 500;
+            this.maxWidth = canvas.parentNode.clientWidth - 500;
+            this.maxHeight = canvas.parentNode.clientHeight;
             this.photo = $('#photo');
             this.canvas = canvas;
             this.context = canvas.getContext('2d');
@@ -67,13 +67,17 @@
             var size = that.newSize(imgWidth, imgHeight, 0);
             that.canvas.width = size.width;
             that.canvas.height = size.height;
+        
             $(that.canvas).attr({
-                width: size.width,
-                height: size.height
+                width: newWidth,
+                height: newHeight
             }).css({
-                marginTop: -size.height/2,
-                marginLeft: -size.width/2
+                marginLeft: -(newWidth /  2),                
+                marginTop: -(newHeight / 2)
             });
+            
+            $('#logw').append("size: w: " + size.width + " h: " + size.height + "\n")
+            $('#logw').append("size: w: " + newWidth + " h: " + newHeight + "\n")
             // Draw the dropped image to the canvas
             // with the new dimensions
             that.context.drawImage(image, 0, 0, newWidth, newHeight);
