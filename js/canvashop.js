@@ -21,18 +21,79 @@
             ///////////////////
             this.jQuery = jQuery;
             this.version = '1.0';
-            this.maxWidth = canvas.parentNode.clientWidth - 500;
-            this.maxHeight = canvas.parentNode.clientHeight;
+            this.maxWidth = canvas.parentNode.clientWidth - 120;
+            this.maxHeight = canvas.parentNode.clientHeight - 120;
             this.photo = $('#photo');
             this.canvas = canvas;
             this.context = canvas.getContext('2d');
             this.transformations = {
                 angle: 0,
-                scale: 0                
+                scale: 0
             };
             this.filters = ['normal', 'vintage', 'lomo', 'clarity', 'sinCity', 'sunrise', 'crossProcess', 'orangePeel', 'love', 'grungy', 'jarques', 'pinhole', 'oldBoot', 'glowingSun', 'hazyDays', 'herMajesty', 'nostalgia', 'hemingway', 'concentrate'];
             this.TO_RADIANS = Math.PI/180;
             var that = this;
+
+
+            CanvasRenderingContext2D.prototype.clear = CanvasRenderingContext2D.prototype.clear || function (preserveTransform) {
+                if (preserveTransform) {
+                    // Store the current transformation matrix
+                    this.save();
+                    // Use the identity matrix while clearing the canvas
+                    this.setTransform(1, 0, 0, 1, 0, 0);
+                }
+
+                this.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                if (preserveTransform) {
+                    // Restore the transform
+                    this.restore();
+                }
+            };
+        }
+        CANVASHOP.prototype.fitCanvas = function(image) {
+            var that = this;
+            var imgWidth  = image.width;
+            var imgHeight = image.height;
+            var newWidth = 0;
+            var newHeight = 0;
+            var ratio = null;
+
+            // Calculate the new image dimensions, so they fit
+            // inside the maxWidth x maxHeight bounding box
+            if (imgWidth >= that.maxWidth || imgHeight >= that.maxHeight) {
+                // The image is too large,
+                // resize it to fit a 500x500 square!
+                if (imgWidth > imgHeight) {
+                    // Wide
+                    ratio = imgWidth / that.maxWidth;
+                    newWidth = that.maxWidth;
+                    newHeight = imgHeight / ratio;
+                } else {
+                    // Tall or square
+                    ratio = imgHeight / that.maxHeight;
+                    newHeight = that.maxHeight;
+                    newWidth = imgWidth / ratio;
+                }
+            } else {
+                newHeight = imgHeight;
+                newWidth = imgWidth;
+            }
+            //trackTransforms(that.context);
+            // Draw the dropped image to the canvas
+            // with the new dimensions
+            var size = that.newSize(imgWidth, imgHeight, 0);
+            that.canvas.width = size.width;
+            that.canvas.height = size.height;
+
+            $(that.canvas).attr({
+                width: newWidth,
+                height: newHeight
+            }).css({
+                marginLeft: -(newWidth /  2),
+                marginTop: -(newHeight / 2)
+            });
+
         }
         CANVASHOP.prototype.initCanvas = function(image) {
             var that = this;
@@ -67,17 +128,18 @@
             var size = that.newSize(imgWidth, imgHeight, 0);
             that.canvas.width = size.width;
             that.canvas.height = size.height;
-        
+
             $(that.canvas).attr({
                 width: newWidth,
                 height: newHeight
             }).css({
-                marginLeft: -(newWidth /  2),                
+                marginLeft: -(newWidth /  2),
                 marginTop: -(newHeight / 2)
             });
-            
+
             $('#logw').append("size: w: " + size.width + " h: " + size.height + "\n")
             $('#logw').append("size: w: " + newWidth + " h: " + newHeight + "\n")
+            $('#logw').append("max: w: " + that.maxWidth + " h: " + that.maxHeight + "\n")
             // Draw the dropped image to the canvas
             // with the new dimensions
             that.context.drawImage(image, 0, 0, newWidth, newHeight);
@@ -99,7 +161,7 @@
             that.photo.find('canvas').remove().end().append(canvas);
             var effect = 'nostalgia';
             Caman(canvas[0], function () {
-                // If such an effect exists, use it:    
+                // If such an effect exists, use it:
                 if( effect in this){
                     this[effect]();
                     this.render();
@@ -109,7 +171,7 @@
                 else{
                     //hideDownload();
                 }
-            });            
+            });
         };
         ///////////////////////////////////////////////////////////////////////
         // Image Transformations                                             //
@@ -133,15 +195,15 @@
         CANVASHOP.prototype.scaleImage = function(context, image, x, y, factor) {
             // save the current co-ordinate system
             // before we screw with it
-            context.save();            
+            context.save();
             // move to the middle of where we want to draw our image
-            context.translate(x, y);            
+            context.translate(x, y);
             // rotate around that point, converting our
             // angle from degrees to radians
-            context.scale(factor, factor);            
+            context.scale(factor, factor);
             // draw it up and to the left by half the width
             // and height of the image
-            context.drawImage(image, -(image.width/2), -(image.height/2));            
+            context.drawImage(image, -(image.width/2), -(image.height/2));
             // and restore the co-ords to how they were when we began
             context.restore();
         };
@@ -153,11 +215,11 @@
                 width: 0,
                 height: 0
             };
-            if (sin < 0) { 
-                sin = -sin; 
+            if (sin < 0) {
+                sin = -sin;
             }
-            if (cos < 0) { 
-                cos = -cos; 
+            if (cos < 0) {
+                cos = -cos;
             }
             size.width = height * sin + width * cos;
             size.height = height * cos + width * sin;

@@ -14,7 +14,7 @@
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-        <link type="text/css" rel="stylesheet" media="all" href="./css/font-awesome.css">    
+        <link type="text/css" rel="stylesheet" media="all" href="./css/font-awesome.css">
         <style>
         .editor {
           position: relative;
@@ -159,6 +159,44 @@
                -moz-box-sizing: border-box;
                     box-sizing: border-box;
         }
+        #Filters {
+            margin: 10px 0
+        }
+        #Filters .Filter {
+            float: left;
+            width: 300px
+        }
+        #Filters .Filter > div {
+            padding: 5px 10px
+        }
+        #Filters .Filter .FilterName {
+            float: left
+        }
+        #Filters .Filter .FilterName p {
+            margin: 0
+        }
+        #Filters .Filter .FilterSetting {
+            float: right
+        }
+        #Filters .Filter .FilterSetting input[type="range"] {
+            -webkit-appearance:none!important;
+            width:150px;
+            background-color:#434341;
+            height:1px;
+            vertical-align:1px;
+        }
+
+        #Filters .Filter .FilterSetting input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance:none!important;
+            height:12px;
+            width:15px;
+            background-color:#368ad2;
+            cursor:pointer;
+        }
+        #Filters .Filter .FilterSetting .FilterValue {
+            width: 30px;
+            display: inline - block
+        }
         </style>
         <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
         <script src="./js/caman.full.js"></script>
@@ -168,10 +206,10 @@
                 "use strict";
                 var canvas = document.getElementById('image')
                 window.canvashop = new window.CANVASHOP(canvas);
-                
+
                 init();
                 return;
-            });            
+            });
             function init() {
                 var myImage = null;
                 var input = window.canvashop.createInput($("#file div"));
@@ -185,6 +223,30 @@
                             window.canvashop.filter();
                         });
                     });
+                });
+                $(".edit").on("click", function(){
+                    var action = $(this).attr("data-transform");
+                    switch(action) {
+                        case "rotate":
+                            console.log("rotate image");
+                            //drawRotatedImage(context, imageObj, 64, 64, 45);
+                            var canvas = document.getElementById('image')
+                            var context = canvas.getContext('2d');
+                            context.clear(true);
+                            window.canvashop.transformations.angle += 45;
+                            window.canvashop.rotateImage(context, myImage, canvas.width/2, canvas.height/2, window.canvashop.transformations.angle)
+                            break;
+                        case "scale":
+                            console.log("scale image");
+                            var factor = parseInt($(this).attr("data-factor"), 10);
+                            console.log(factor)
+                            var canvas = document.getElementById('image')
+                            var context = canvas.getContext('2d');
+                            context.clear(true);
+                            window.canvashop.transformations.scale += (factor * 0.1);
+                            window.canvashop.scaleImage(context, myImage, canvas.width/2, canvas.height/2,   window.canvashop.transformations.scale)
+                            break;
+                    }
                 });
             }
         </script>
@@ -208,7 +270,7 @@
                     <button>3</button>
                 </div>
             </div>
-            
+
             <div class="tools">
                 <div class="controls">
                     <input type="text" value="100%" />
@@ -226,5 +288,120 @@
         <div class="logging">
             <textarea id="logw"></textarea>
         </div>
+        <div id="Filters">
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>brightness</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="-100" max="100" step="1" value="0" data-filter="brightness">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>contrast</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="-100" max="100" step="1" value="0" data-filter="contrast">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>saturation</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="-100" max="100" step="1" value="0" data-filter="saturation">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>vibrance</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="-100" max="100" step="1" value="0" data-filter="vibrance">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>exposure</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="-100" max="100" step="1" value="0" data-filter="exposure">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>hue</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="0" max="100" step="1" value="0" data-filter="hue">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>sepia</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="0" max="100" step="1" value="0" data-filter="sepia">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>gamma</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="0" max="10" step="0.1" value="0" data-filter="gamma">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>noise</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="0" max="100" step="1" value="0" data-filter="noise">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+    <div class="Filter">
+      <div class="FilterName">
+        <p>clip</p>
+      </div>
+
+      <div class="FilterSetting">
+        <input type="range" min="0" max="100" step="1" value="0" data-filter="clip">
+        <span class="FilterValue">0</span>
+      </div>
+    </div>
+
+
+  <div class="Clear"></div>
+  </div>
     </body>
 </html>

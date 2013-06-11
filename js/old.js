@@ -132,7 +132,7 @@
 
         // Draw the dropped image to the canvas
         // with the new dimensions
-        context.drawImage(image, 0, 0, newWidth, newHeight);
+        context.drawImage(image, 0, 0, size.width, size.height);
 
         // We don't need this any more
         image.remove();
